@@ -1,5 +1,6 @@
 import axios, { AxiosError } from "axios"
 import { parseCookies, setCookie } from "nookies"
+import { signOut } from "../contexts/AuthContext"
 
 interface FailedRequestsQueueProps {
   onSuccess: (token: string) => void
@@ -75,8 +76,9 @@ api.interceptors.response.use(
           })
         })
       } else {
-
+        signOut()
       }
     }
+    return Promise.reject(error);
   }
 )
