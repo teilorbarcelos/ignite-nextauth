@@ -1,4 +1,5 @@
 import { createContext, ReactNode, useContext, useState } from "react"
+import { api } from "../services/api"
 
 interface CredentialsProps {
   email: string
@@ -20,7 +21,16 @@ export function AuthProvider({ children }: AuthContextProviderProps) {
   const [isAuthenticated, setisAuthenticated] = useState(false)
 
   async function signIn({ email, password }: CredentialsProps) {
-    console.log({ email, password })
+    try {
+      const response = await api.post('/sessions', {
+        email,
+        password
+      })
+
+      console.log(response.data)
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   return (
