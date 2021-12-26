@@ -1,7 +1,8 @@
-import Router from "next/router"
 import { useEffect } from "react"
 import { useAuth } from "../contexts/AuthContext"
-import { api } from "../services/api"
+import { onlyAuth } from "../middlewares/onlyAuth"
+import { setupAPIClient } from "../services/api"
+import { api } from "../services/apiClient"
 
 export default function Dashboard() {
   const { user } = useAuth()
@@ -9,10 +10,20 @@ export default function Dashboard() {
   useEffect(() => {
     api.get('/me')
       .then(response => console.log(response))
-      .catch(error => console.log(error))
   }, [])
 
   return (
     <h1>Email: {user?.email}</h1>
   )
 }
+
+export const getServerSideProps = onlyAuth(async (ctx) => {
+  const apiClient = setupAPIClient(ctx)
+  const response = await apiClient.get('/me')
+
+  console.log(response.data)
+
+  return {
+    props: {}
+  }
+})

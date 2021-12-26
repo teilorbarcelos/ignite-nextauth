@@ -1,7 +1,7 @@
 import Router from "next/router"
 import { createContext, ReactNode, useContext, useEffect, useState } from "react"
 import { destroyCookie, parseCookies, setCookie } from 'nookies'
-import { api } from "../services/api"
+import { api } from "../services/apiClient"
 
 interface CredentialsProps {
   email: string
@@ -41,7 +41,7 @@ interface UserSessionProps {
 
 export function AuthProvider({ children }: AuthContextProviderProps) {
   const [user, setUser] = useState<UserProps | null>(null)
-  const [isAuthenticated, setIsAuthenticated] = useState(!!user)
+  const isAuthenticated = !!user
 
   useEffect(() => {
     const { 'myNextAuth.token': token } = parseCookies()
@@ -85,8 +85,6 @@ export function AuthProvider({ children }: AuthContextProviderProps) {
         permissions,
         roles
       })
-
-      setIsAuthenticated(true)
 
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`
 

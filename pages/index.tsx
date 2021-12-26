@@ -4,7 +4,7 @@ import { onlyGuest } from '../middlewares/onlyGuest'
 import styles from '../styles/Home.module.css'
 
 export default function Home() {
-  const { signIn, isAuthenticated } = useAuth()
+  const { signIn } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
