@@ -1,9 +1,10 @@
 import { FormEvent, useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
+import { onlyGuest } from '../middlewares/onlyGuest'
 import styles from '../styles/Home.module.css'
 
 export default function Home() {
-  const { signIn, isAuthenticated } = useAuth()
+  const { signIn } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
@@ -37,3 +38,11 @@ export default function Home() {
     </form>
   )
 }
+
+export const getServerSideProps = onlyGuest(async (ctx) => {
+
+
+  return {
+    props: {}
+  }
+})
