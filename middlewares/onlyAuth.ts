@@ -29,8 +29,8 @@ export function onlyAuth<P>(fn: GetServerSideProps<P>): GetServerSideProps {
           }
         }
       }
-    } finally {
-      return await fn(ctx)
     }
+
+    return await fn(ctx)
   }
 }
