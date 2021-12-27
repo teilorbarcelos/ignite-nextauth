@@ -3,15 +3,22 @@ import { createContext, ReactNode, useContext, useEffect, useState } from "react
 import { destroyCookie, parseCookies, setCookie } from 'nookies'
 import { api } from "../services/apiClient"
 
+interface User {
+  email: string;
+  permissions: string[];
+  roles: string[]
+}
+
 interface CredentialsProps {
   email: string
   password: string
 }
 
 interface AuthContextData {
-  signIn(credentials: CredentialsProps): Promise<void>
+  signIn: (credentials: CredentialsProps) => Promise<void>
   isAuthenticated: boolean
-  user: UserProps | null
+  user: User
+  signOut: () => void
 }
 
 interface AuthContextProviderProps {
@@ -20,15 +27,21 @@ interface AuthContextProviderProps {
 
 const AuthContext = createContext({} as AuthContextData)
 
+// let authChannel: BroadcastChannel
+
 export function signOut() {
   destroyCookie(undefined, 'myNextAuth.token')
   destroyCookie(undefined, 'myNextAuth.refreshToken')
 
+  // authChannel.postMessage('signOut')
+
   Router.push('/')
 }
 
-interface UserProps extends Partial<UserSessionProps> {
+export interface UserProps {
   email: string
+  permissions: string[]
+  roles: string[]
 }
 
 interface UserSessionProps {
@@ -40,8 +53,35 @@ interface UserSessionProps {
 }
 
 export function AuthProvider({ children }: AuthContextProviderProps) {
-  const [user, setUser] = useState<UserProps | null>(null)
+  const [user, setUser] = useState<User>({} as User)
   const isAuthenticated = !!user
+
+  // logo abaixo está uma funcionalidade
+  // bem legal de deslogar e logar todas as abas ao mesmo tempo
+  // pena que entra em loop infinito
+
+  // useEffect(() => {
+  //   authChannel = new BroadcastChannel('auth')
+
+  //   authChannel.onmessage = (message) => {
+  //     switch (message.data) {
+  //       case 'signOut':
+
+  //         signOut()
+  //         authChannel.close()
+
+  //         break
+
+  //       case 'signIn':
+  //         Router.push('/dashboard')
+  //         authChannel.close()
+  //         break
+
+  //       default:
+  //         break
+  //     }
+  //   }
+  // }, [])
 
   useEffect(() => {
     const { 'myNextAuth.token': token } = parseCookies()
@@ -86,16 +126,19 @@ export function AuthProvider({ children }: AuthContextProviderProps) {
         roles
       })
 
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+      // api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+      api.defaults.headers['Authorization'] = `Bearer ${token}` // tipagem errada no axios...
 
       Router.push('/dashboard')
+
+      // authChanel.postMessage('signIn')
     } catch (error) {
       console.log(error)
     }
   }
 
   return (
-    <AuthContext.Provider value={{ signIn, isAuthenticated, user }}>
+    <AuthContext.Provider value={{ signIn, isAuthenticated, user, signOut }}>
       {children}
     </AuthContext.Provider>
   )
