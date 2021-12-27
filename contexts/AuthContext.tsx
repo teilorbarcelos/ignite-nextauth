@@ -3,6 +3,12 @@ import { createContext, ReactNode, useContext, useEffect, useState } from "react
 import { destroyCookie, parseCookies, setCookie } from 'nookies'
 import { api } from "../services/apiClient"
 
+interface User {
+  email: string;
+  permissions: string[];
+  roles: string[]
+}
+
 interface CredentialsProps {
   email: string
   password: string
@@ -11,7 +17,7 @@ interface CredentialsProps {
 interface AuthContextData {
   signIn(credentials: CredentialsProps): Promise<void>
   isAuthenticated: boolean
-  user: UserProps | null
+  user: User
 }
 
 interface AuthContextProviderProps {
@@ -27,8 +33,10 @@ export function signOut() {
   Router.push('/')
 }
 
-interface UserProps extends Partial<UserSessionProps> {
+export interface UserProps {
   email: string
+  permissions: string[]
+  roles: string[]
 }
 
 interface UserSessionProps {
@@ -40,7 +48,7 @@ interface UserSessionProps {
 }
 
 export function AuthProvider({ children }: AuthContextProviderProps) {
-  const [user, setUser] = useState<UserProps | null>(null)
+  const [user, setUser] = useState<User>({} as User)
   const isAuthenticated = !!user
 
   useEffect(() => {
@@ -86,7 +94,8 @@ export function AuthProvider({ children }: AuthContextProviderProps) {
         roles
       })
 
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+      // api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+      api.defaults.headers['Authorization'] = `Bearer ${token}` // tipagem errada no axios...
 
       Router.push('/dashboard')
     } catch (error) {

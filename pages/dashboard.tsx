@@ -1,4 +1,5 @@
 import { useEffect } from "react"
+import { Can } from "../components/Can"
 import { useAuth } from "../contexts/AuthContext"
 import { useCan } from "../hooks/useCan"
 import { onlyAuth } from "../middlewares/onlyAuth"
@@ -12,18 +13,20 @@ export default function Dashboard() {
     permissions: ['metrics.list']
   })
 
-  // useEffect(() => {
-  //   api.get('/me')
-  //     .then(response => console.log(response))
-  // }, [])
+  useEffect(() => {
+    api.get('/me')
+      .then(response => console.log(response))
+  }, [])
 
   return (
     <>
       <h1>Email: {user?.email}</h1>
-      {
-        userCanSeeMetrics &&
+
+      <Can
+        permissions={['metrics.list']}
+      >
         <div>Métricas</div>
-      }
+      </Can>
     </>
   )
 }
